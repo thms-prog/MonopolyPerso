@@ -9,6 +9,9 @@ public class TurnController : MonoBehaviour
     [SerializeField] private int currentPosition = 0;  // position du pion (logique)
     [SerializeField] private int lastD1 = 0, lastD2 = 0, lastTotal = 0;
 
+    [SerializeField] private BoardController board;
+    [SerializeField] private PawnController pawn;
+
     public void RollAndMove()
     {
         lastTotal = DiceRoller.Roll2D6(out lastD1, out lastD2);
@@ -26,8 +29,12 @@ public class TurnController : MonoBehaviour
         }
 
         Debug.Log($"🎲 {lastD1} + {lastD2} = {lastTotal} | Case {oldPos} → {currentPosition}");
-        
-       
+
+        // Déplacement visuel du pion
+        if (board != null && pawn != null)
+        {
+            pawn.MoveAlong(board, oldPos, lastTotal);
+        }
     }
 
     // Accesseurs utiles (si besoin ailleurs ensuite)
