@@ -3,7 +3,9 @@ using UnityEngine;
 public class Monopoly1 : MonoBehaviour
 {
     [SerializeField] private TurnController turn;
-    private int _lastActionFrame = -1; // anti-double appel même frame
+
+    // Anti double-déclenchement (même frame)
+    private static int _lastActionFrame = -1; // ← static : même garde-fou si jamais 2 instances existent
 
     void Awake()
     {
@@ -19,30 +21,29 @@ public class Monopoly1 : MonoBehaviour
     {
         if (turn == null) return;
 
-        bool triggered = false;
+        // 🔑 IMPORTANT :
+        // On NE capte plus les clics/touches globaux ici
+        // (sinon bouton UI / dés cliquables déclenchent 2x).
+        // On garde uniquement la barre ESPACE pour tester dans l’éditeur.
 
-#if UNITY_ANDROID || UNITY_IOS
-        // Mobile : uniquement le premier touch
-        triggered = (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began);
-#else
-        // PC/Editor : Espace OU clic gauche
-        triggered = Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0);
+#if UNITY_EDITOR || UNITY_STANDALONE
+        if (Input.GetKeyDown(KeyCode.Space))
+            SafeTrigger();
 #endif
-
-        // Anti double-trigger : n’agir qu’une fois par frame
-        if (triggered && _lastActionFrame != Time.frameCount)
-        {
-            _lastActionFrame = Time.frameCount;
-            turn.RollAndMove();
-        }
     }
 
-    public void OnRollButton()
+    // Appelé par le bouton UI (actuel) OU par les futurs scripts de dés cliquables
+    public void OnRollButton() => SafeTrigger();
+
+    // (Alias facultatif pour les dés, si tu préfères nommer autrement)
+    public void OnDiceTapped() => SafeTrigger();
+
+    private void SafeTrigger()
     {
         if (turn == null) return;
-        // Anti double-trigger pour les appels UI
-        if (_lastActionFrame == Time.frameCount) return;
+        if (_lastActionFrame == Time.frameCount) return; // débounce
         _lastActionFrame = Time.frameCount;
+
         turn.RollAndMove();
     }
 }
