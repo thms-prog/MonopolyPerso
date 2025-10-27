@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 
 public class TurnController : MonoBehaviour
@@ -11,6 +12,8 @@ public class TurnController : MonoBehaviour
 
     [SerializeField] private BoardController board;
     [SerializeField] private PawnController pawn;
+    [SerializeField] private TextMeshProUGUI diceText;
+    [SerializeField] private TextMeshProUGUI tileText;
 
     public void RollAndMove()
     {
